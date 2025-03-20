@@ -9,7 +9,7 @@ on:
 env:
   PROJECT_ID: bjjcoach-454315
   REGION: us-central1
-  SERVICE_NAME: bjjcoach
+  SERVICE_NAME: bjj-coach
   BUCKET_NAME: bjjcoach-files
 
 permissions:
