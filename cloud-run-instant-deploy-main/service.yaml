@@ -16,7 +16,7 @@ spec:
       - image: us-central1-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22
         command:
         - node
-        - index.js
+        - src/index.js
         volumeMounts:
         - name: gcs-mount
           mountPath: /workspace
