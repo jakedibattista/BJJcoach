@@ -19,9 +19,17 @@ spec:
         - sh
         - -c
         - |
-          cd /workspace && \
-          ls -la && \
-          npm ci && \
+          # Create a temporary directory for our application
+          mkdir -p /app
+          cd /app
+          
+          # Copy files from the read-only mount to our writable directory
+          cp -r /workspace/* /app/
+          
+          # Install dependencies
+          npm ci
+          
+          # Start the application
           node src/index.js
         env:
         - name: NODE_ENV
