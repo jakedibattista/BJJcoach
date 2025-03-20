@@ -23,18 +23,20 @@ spec:
           cp -r /workspace/* /tmp/
           cd /tmp
           
-          # Debug: Show contents and package.json
-          ls -la
-          cat package.json
+          # Create a directory for npm
+          mkdir -p /tmp/npm
           
-          # Install dependencies
-          npm ci
+          # Install dependencies with custom npm configuration
+          npm config set cache /tmp/npm --global
+          npm ci --no-cache
           
           # Start the application
           node src/index.js
         env:
         - name: NODE_ENV
           value: "production"
+        - name: HOME
+          value: "/tmp"
         ports:
         - containerPort: 8080
         resources:
