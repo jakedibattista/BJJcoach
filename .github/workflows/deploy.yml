@@ -9,10 +9,10 @@ on:
       - main
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: bjjcoach-454315
   REGION: us-central1
-  SERVICE_NAME: bjj-coach
-  BUCKET_NAME: bjjcoach
+  SERVICE_NAME: bjjcoach
+  BUCKET_NAME: bjjcoach-files
 
 jobs:
   deploy:
@@ -25,12 +25,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Google Auth
-        id: auth
+      - id: auth
+        name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SA_EMAIL }}
+          token_format: 'access_token'
+          audience: 'sts.googleapis.com'
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -40,20 +42,20 @@ jobs:
           gcloud config set project ${{ env.PROJECT_ID }}
           gcloud config set run/region ${{ env.REGION }}
 
-      - name: Copy files to Cloud Storage
+      - name: Copy files to Google Cloud Storage
         run: |
           gcloud storage cp -r ./* gs://${{ env.BUCKET_NAME }}/
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run services replace cloud-run-instant-deploy-main/service.yaml
+          gcloud run services replace service.yaml
           gcloud run services update ${{ env.SERVICE_NAME }} \
-            --region ${{ env.REGION }} \
-            --update-env-vars DATE=$(date +%Y-%m-%d_%H:%M:%S)
+            --region=${{ env.REGION }} \
+            --update-env-vars=DATE=$(date +%Y-%m-%d_%H:%M:%S)
 
       - name: Make service public
         run: |
           gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
-            --region ${{ env.REGION }} \
             --member="allUsers" \
-            --role="roles/run.invoker" 
+            --role="roles/run.invoker" \
+            --region=${{ env.REGION }} 
