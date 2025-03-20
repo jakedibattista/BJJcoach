@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: bjj-coach
   annotations:
-    run.googleapis.com/launch-stage: ALPHA # required to be able to disable the deployment health check.
+    run.googleapis.com/launch-stage: ALPHA
   labels:
     cloud.googleapis.com/location: us-central1
 spec:
@@ -11,6 +11,7 @@ spec:
     metadata:
       annotations:
         run.googleapis.com/health-check-disabled: 'true'
+        run.googleapis.com/startup-cpu-boost: 'true'
     spec:
       containers:
       - image: us-central1-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22
@@ -19,8 +20,19 @@ spec:
         - -c
         - |
           cd /workspace && \
-          npm install && \
+          npm ci --only=production && \
           node src/index.js
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
         volumeMounts:
         - name: gcs-mount
           mountPath: /workspace
