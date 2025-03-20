@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: instant-app
+  name: bjj-coach
   annotations:
     run.googleapis.com/launch-stage: ALPHA # required to be able to disable the deployment health check.
   labels:
@@ -26,5 +26,5 @@ spec:
           driver: gcsfuse.run.googleapis.com
           readOnly: true
           volumeAttributes:
-            bucketName: BUCKET_NAME # Replace with your bucket name
+            bucketName: bjjcoach
 
