@@ -1,67 +1,73 @@
 # BJJ Coach
 
-A web application for BJJ coaching and training management.
-
-## Setup
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Create a `.env` file in the root directory with the following variables:
-```
-PORT=8080
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
+A Node.js application for BJJ coaching, deployed to Google Cloud Run.
 
 ## Deployment
 
-This project uses Google Cloud Run with instant deployments. Follow these steps to deploy:
+This application is deployed to Google Cloud Run using GitHub Actions. The deployment process is automated and will trigger on pushes to the main branch.
 
-1. Install and configure Google Cloud CLI:
-```bash
-gcloud init
-```
+### Manual Deployment Steps (if needed)
+
+1. Create a Google Cloud project and enable necessary APIs:
+   ```bash
+   gcloud services enable run.googleapis.com
+   gcloud services enable storage.googleapis.com
+   ```
 
 2. Create a Cloud Storage bucket:
-```bash
-gcloud storage buckets create gs://BUCKET_NAME
-```
+   ```bash
+   gcloud storage buckets create gs://bjjcoach-files --location=us-central1
+   ```
 
-3. Deploy the application:
-```bash
-# Copy application files to Cloud Storage
-gcloud storage cp -r ./* gs://BUCKET_NAME/
+3. Copy files to Cloud Storage:
+   ```bash
+   gcloud storage cp . gs://bjjcoach-files/ --recursive
+   ```
 
-# Deploy the service
-gcloud run services replace service.yaml
+4. Deploy to Cloud Run:
+   ```bash
+   gcloud run services replace service.yaml
+   ```
 
-# Make the service public
-gcloud run services add-iam-policy-binding bjj-coach --region us-central1 \
-  --member="allUsers" \
-  --role="roles/run.invoker"
-```
+5. Make the service public:
+   ```bash
+   gcloud run services add-iam-policy-binding bjjcoach \
+     --member="allUsers" \
+     --role="roles/run.invoker" \
+     --region=us-central1
+   ```
 
-4. Update the application:
-```bash
-# Update code in Cloud Storage
-gcloud storage cp -r ./* gs://BUCKET_NAME/
+## Environment Variables
 
-# Force service to pick up new code
-gcloud run services update bjj-coach --region us-central1 --update-env-vars DATE=$(date +%Y-%m-%d_%H:%M:%S)
-```
+The following environment variables are required:
+- `PORT`: The port the server listens on (default: 8080)
+- `BUCKET_NAME`: The name of the Cloud Storage bucket (default: bjjcoach-files)
 
 ## Development
 
-- `npm start`: Start the production server
-- `npm run dev`: Start the development server with hot reload
-- `npm test`: Run tests
-- `npm run lint`: Run ESLint
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+3. Build for production:
+   ```bash
+   npm run build
+   ```
+
+4. Start the production server:
+   ```bash
+   npm start
+   ```
+
+## License
+
+MIT
 
 ## Project Structure
 
