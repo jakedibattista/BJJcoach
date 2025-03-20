@@ -2,6 +2,8 @@
 
 A Node.js application for BJJ coaching, deployed to Google Cloud Run.
 
+_Last updated: March 19, 2024_
+
 ## Deployment
 
 This application is deployed to Google Cloud Run using GitHub Actions. The deployment process is automated and will trigger on pushes to the main branch.
