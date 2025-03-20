@@ -19,12 +19,13 @@ spec:
         - sh
         - -c
         - |
-          # Create a temporary directory for our application
-          mkdir -p /app
-          cd /app
+          # Copy files to a writable directory
+          cp -r /workspace/* /tmp/
+          cd /tmp
           
-          # Copy files from the read-only mount to our writable directory
-          cp -r /workspace/* /app/
+          # Debug: Show contents and package.json
+          ls -la
+          cat package.json
           
           # Install dependencies
           npm ci
