@@ -20,7 +20,8 @@ spec:
         - -c
         - |
           cd /workspace && \
-          npm ci --only=production && \
+          ls -la && \
+          npm ci && \
           node src/index.js
         env:
         - name: NODE_ENV

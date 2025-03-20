@@ -48,7 +48,9 @@ jobs:
 
       - name: Copy files to Google Cloud Storage
         run: |
-          gcloud storage cp -r ./* gs://${{ env.BUCKET_NAME }}/
+          mkdir -p /tmp/app
+          cp -r * /tmp/app/
+          gcloud storage cp -r /tmp/app/* gs://${{ env.BUCKET_NAME }}/
 
       - name: Deploy to Cloud Run
         run: |
