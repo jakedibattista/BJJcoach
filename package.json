@@ -1,7 +1,7 @@
 {
   "name": "bjj-coach",
   "version": "1.0.0",
-  "description": "BJJ Coach Application",
+  "description": "A BJJ coaching and training management application",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -10,13 +10,13 @@
     "lint": "eslint src/**/*.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^4.18.3",
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
     "helmet": "^7.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2",
+    "nodemon": "^3.1.0",
     "jest": "^29.7.0",
     "eslint": "^8.56.0"
   }
