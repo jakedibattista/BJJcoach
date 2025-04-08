@@ -2,66 +2,57 @@ name: Deploy to Cloud Run
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 env:
-  PROJECT_ID: bjjcoach-454315
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-central1
   SERVICE_NAME: bjj-coach
   BUCKET_NAME: bjjcoach-files
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
     steps:
-      - name: Debug Token Info
-        run: |
-          echo "Repository: ${{ github.repository }}"
-          echo "Repository Owner: ${{ github.repository_owner }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Event Name: ${{ github.event_name }}"
+    - uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: ${{ secrets.GCP_SA_EMAIL }}
 
-      - id: auth
-        name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          token_format: 'access_token'
-          audience: 'sts.googleapis.com'
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+    - name: 'Configure gcloud'
+      run: |
+        gcloud config set project $PROJECT_ID
+        gcloud config set run/region $REGION
 
-      - name: Configure gcloud
-        run: |
-          gcloud config set project ${{ env.PROJECT_ID }}
-          gcloud config set run/region ${{ env.REGION }}
+    - name: 'Copy files to Cloud Storage'
+      run: |
+        gcloud storage cp -r . gs://$BUCKET_NAME/
 
-      - name: Copy files to Google Cloud Storage
-        run: |
-          mkdir -p /tmp/app
-          cp -r * /tmp/app/
-          gcloud storage cp -r /tmp/app/* gs://${{ env.BUCKET_NAME }}/
+    - name: 'Deploy to Cloud Run'
+      run: |
+        gcloud run services replace cloud-run-instant-deploy-main/service.yaml \
+          --set-env-vars="YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" \
+          --set-env-vars="JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+          --set-env-vars="DB_HOST=${{ secrets.DB_HOST }}" \
+          --set-env-vars="DB_PORT=${{ secrets.DB_PORT }}" \
+          --set-env-vars="DB_NAME=${{ secrets.DB_NAME }}" \
+          --set-env-vars="DB_USER=${{ secrets.DB_USER }}" \
+          --set-env-vars="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
 
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run services replace cloud-run-instant-deploy-main/service.yaml
-          gcloud run services update ${{ env.SERVICE_NAME }} \
-            --region=${{ env.REGION }} \
-            --update-env-vars=DATE=$(date +%Y-%m-%d_%H:%M:%S)
-
-      - name: Make service public
-        run: |
-          gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
-            --member="allUsers" \
-            --role="roles/run.invoker" \
-            --region=${{ env.REGION }} 
+    - name: 'Make Cloud Run service public'
+      run: |
+        gcloud run services add-iam-policy-binding $SERVICE_NAME \
+          --member="allUsers" \
+          --role="roles/run.invoker" 

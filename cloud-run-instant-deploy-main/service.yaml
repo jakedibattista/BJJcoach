@@ -32,40 +32,19 @@ spec:
         - name: NODE_ENV
           value: "production"
         - name: YOUTUBE_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: youtube-api-key
-              key: latest
+          value: ${YOUTUBE_API_KEY}
         - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: latest
+          value: ${JWT_SECRET}
         - name: DB_HOST
-          valueFrom:
-            secretKeyRef:
-              name: db-host
-              key: latest
+          value: ${DB_HOST}
         - name: DB_PORT
-          valueFrom:
-            secretKeyRef:
-              name: db-port
-              key: latest
+          value: ${DB_PORT}
         - name: DB_NAME
-          valueFrom:
-            secretKeyRef:
-              name: db-name
-              key: latest
+          value: ${DB_NAME}
         - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: db-user
-              key: latest
+          value: ${DB_USER}
         - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-password
-              key: latest
+          value: ${DB_PASSWORD}
         ports:
         - containerPort: 8080
         resources:
