@@ -52,15 +52,27 @@ jobs:
         docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }} .
         docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
 
+    - name: Enable Required APIs
+      run: |
+        echo "Enabling Secret Manager API..."
+        gcloud services enable secretmanager.googleapis.com || {
+          echo "Failed to enable Secret Manager API. Please check if you have the necessary permissions."
+          echo "You may need to enable it manually at: https://console.cloud.google.com/apis/library/secretmanager.googleapis.com?project=${{ env.PROJECT_ID }}"
+          exit 1
+        }
+        
+        echo "Waiting for API to be ready..."
+        for i in {1..6}; do
+          if gcloud services list --enabled | grep -q secretmanager.googleapis.com; then
+            echo "Secret Manager API is enabled and ready"
+            break
+          fi
+          echo "Waiting for API to be ready... (attempt $i/6)"
+          sleep 10
+        done
+
     - name: Create or Update Cloud Run Secrets
       run: |
-        # Enable Secret Manager API if not already enabled
-        gcloud services enable secretmanager.googleapis.com
-
-        # Wait for API to be ready
-        echo "Waiting for Secret Manager API to be ready..."
-        sleep 30
-
         # Function to create/update secret with error handling
         create_secret() {
           local SECRET_NAME=$1
@@ -72,11 +84,13 @@ jobs:
             if ! gcloud secrets describe $SECRET_NAME 2>/dev/null; then
               echo "Creating secret $SECRET_NAME..."
               if printf "%s" "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME --data-file=- --replication-policy="automatic"; then
+                echo "✓ Created secret $SECRET_NAME"
                 return 0
               fi
             else
               echo "Updating secret $SECRET_NAME..."
               if printf "%s" "$SECRET_VALUE" | gcloud secrets versions add $SECRET_NAME --data-file=-; then
+                echo "✓ Updated secret $SECRET_NAME"
                 return 0
               fi
             fi
@@ -102,7 +116,7 @@ jobs:
         create_secret "db-user" "${{ secrets.DB_USER }}" || exit 1
         create_secret "db-password" "${{ secrets.DB_PASSWORD }}" || exit 1
         
-        echo "All secrets created/updated successfully"
+        echo "✓ All secrets created/updated successfully"
 
     - name: Deploy to Cloud Run
       run: |
