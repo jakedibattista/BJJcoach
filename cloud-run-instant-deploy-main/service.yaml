@@ -15,7 +15,7 @@ spec:
         run.googleapis.com/startup-cpu-boost: 'true'
     spec:
       containers:
-      - image: gcr.io/781030252850/bjj-coach
+      - image: gcr.io/bjj-coach-781030252850/bjj-coach
         command:
         - sh
         - -c
