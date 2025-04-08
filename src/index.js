@@ -8,6 +8,7 @@ const videoAnalysisRoutes = require('./routes/videoAnalysis');
 const sequelize = require('./config/database');
 
 const app = express();
+let dbConnected = false;
 
 // Middleware
 app.use(helmet({
@@ -25,29 +26,28 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/analysis', videoAnalysisRoutes);
+// Simple health check that doesn't depend on database
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        database: dbConnected ? 'connected' : 'attempting connection',
+        environment: process.env.NODE_ENV
+    });
+});
 
-// Enhanced health check endpoint
-app.get('/health', async (req, res) => {
-    try {
-        // Test database connection
-        await sequelize.authenticate();
-        res.json({ 
-            status: 'ok',
-            database: 'connected',
-            environment: process.env.NODE_ENV
-        });
-    } catch (error) {
-        console.error('Health check failed:', error);
-        res.status(500).json({ 
-            status: 'error',
-            database: 'disconnected',
-            error: error.message
+// Routes with database dependency
+// Add middleware to check db connection before hitting these routes
+const requireDbConnection = (req, res, next) => {
+    if (!dbConnected) {
+        return res.status(503).json({ 
+            message: 'Database connection not ready, please try again shortly'
         });
     }
-});
+    next();
+};
+
+app.use('/api/auth', requireDbConnection, authRoutes);
+app.use('/api/analysis', requireDbConnection, videoAnalysisRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -55,21 +55,30 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// Database connection and server start
+// Start server first, then try to connect to database
 const PORT = process.env.PORT || 8080;
 
-sequelize.authenticate()
-    .then(() => {
+// Start the server immediately to pass the health check
+const server = app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
+// Then try to connect to the database in the background
+const connectToDB = async () => {
+    try {
+        await sequelize.authenticate();
         console.log('Database connection established');
-        return sequelize.sync();
-    })
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
-        });
-    })
-    .catch(err => {
+        await sequelize.sync();
+        dbConnected = true;
+        console.log('Database synchronized');
+    } catch (err) {
         console.error('Unable to connect to the database:', err);
-    });
+        // Attempt to reconnect after a delay
+        setTimeout(connectToDB, 5000);
+    }
+};
+
+// Start the database connection process
+connectToDB();
 
 module.exports = app; 
