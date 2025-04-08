@@ -2,6 +2,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: bjj-coach
+  namespace: "781030252850"
   annotations:
     run.googleapis.com/launch-stage: ALPHA
   labels:
@@ -14,7 +15,7 @@ spec:
         run.googleapis.com/startup-cpu-boost: 'true'
     spec:
       containers:
-      - image: gcr.io/bjj-coach-781030252850/bjj-coach
+      - image: gcr.io/781030252850/bjj-coach
         command:
         - sh
         - -c
@@ -55,28 +56,27 @@ spec:
             cpu: "500m"
             memory: "256Mi"
         volumeMounts:
-        - name: gcs-mount
-          mountPath: /workspace
-          readOnly: true
+        - name: cloud-storage
+          mountPath: /workspace/public
         startupProbe:
           httpGet:
             path: /health
             port: 8080
           initialDelaySeconds: 0
+          timeoutSeconds: 1
           periodSeconds: 3
-          failureThreshold: 3
+          failureThreshold: 1
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
           initialDelaySeconds: 0
+          timeoutSeconds: 1
           periodSeconds: 3
-          failureThreshold: 3
+          failureThreshold: 1
       volumes:
-      - name: gcs-mount
-        csi:
-          driver: gcsfuse.run.googleapis.com
-          readOnly: true
-          volumeAttributes:
-            bucketName: bjjcoach-files
+      - name: cloud-storage
+        gcs:
+          bucketName: bjjcoach-files
+          readOnly: false
 
