@@ -1,5 +1,6 @@
 name: Deploy to Cloud Run
 
+# Force new workflow run with simplified auth
 on:
   push:
     branches: [ main ]
