@@ -26,37 +26,37 @@ spec:
         - name: YOUTUBE_API_KEY
           valueFrom:
             secretKeyRef:
-              name: youtube-api-key
+              name: projects/781030252850/secrets/youtube-api-key
               key: latest
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: jwt-secret
+              name: projects/781030252850/secrets/jwt-secret
               key: latest
         - name: DB_HOST
           valueFrom:
             secretKeyRef:
-              name: db-host
+              name: projects/781030252850/secrets/db-host
               key: latest
         - name: DB_PORT
           valueFrom:
             secretKeyRef:
-              name: db-port
+              name: projects/781030252850/secrets/db-port
               key: latest
         - name: DB_NAME
           valueFrom:
             secretKeyRef:
-              name: db-name
+              name: projects/781030252850/secrets/db-name
               key: latest
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: db-user
+              name: projects/781030252850/secrets/db-user
               key: latest
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: db-password
+              name: projects/781030252850/secrets/db-password
               key: latest
         ports:
         - containerPort: 8080
