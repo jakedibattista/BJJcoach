@@ -3,55 +3,58 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-const videoAnalysisService = require('./services/videoAnalysis');
+const authRoutes = require('./routes/auth');
+const videoAnalysisRoutes = require('./routes/videoAnalysis');
+const sequelize = require('./config/database');
 
 const app = express();
-const PORT = process.env.PORT || 8080;
 
 // Middleware
-app.use(cors());
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'"],
-            frameSrc: ["'self'", "https://www.youtube.com"],
-            fontSrc: ["'self'", "cdnjs.cloudflare.com"],
-        },
-    },
+            connectSrc: ["'self'", "https://*.googleapis.com"]
+        }
+    }
 }));
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize services
-videoAnalysisService.initialize().catch(console.error);
-
 // Routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.use('/api/auth', authRoutes);
+app.use('/api/analysis', videoAnalysisRoutes);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
 });
 
-// Video Analysis Endpoint
-app.post('/api/analyze', async (req, res) => {
-    try {
-        const { videoUrl } = req.body;
-        
-        if (!videoUrl) {
-            return res.status(400).json({ error: 'Video URL is required' });
-        }
-
-        const result = await videoAnalysisService.analyzeVideo(videoUrl);
-        res.json(result);
-    } catch (error) {
-        console.error('Error analyzing video:', error);
-        res.status(500).json({ error: 'Error analyzing video' });
-    }
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-}); 
+// Database connection and server start
+const PORT = process.env.PORT || 8080;
+
+sequelize.authenticate()
+    .then(() => {
+        console.log('Database connection established');
+        return sequelize.sync();
+    })
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error('Unable to connect to the database:', err);
+    });
+
+module.exports = app; 
