@@ -54,27 +54,55 @@ jobs:
 
     - name: Create or Update Cloud Run Secrets
       run: |
-        # Function to create/update secret
+        # Enable Secret Manager API if not already enabled
+        gcloud services enable secretmanager.googleapis.com
+
+        # Wait for API to be ready
+        echo "Waiting for Secret Manager API to be ready..."
+        sleep 30
+
+        # Function to create/update secret with error handling
         create_secret() {
           local SECRET_NAME=$1
           local SECRET_VALUE=$2
+          local MAX_RETRIES=3
+          local RETRY_COUNT=0
           
-          # Check if secret exists
-          if ! gcloud secrets describe $SECRET_NAME 2>/dev/null; then
-            printf "%s" "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME --data-file=-
-          else
-            printf "%s" "$SECRET_VALUE" | gcloud secrets versions add $SECRET_NAME --data-file=-
-          fi
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if ! gcloud secrets describe $SECRET_NAME 2>/dev/null; then
+              echo "Creating secret $SECRET_NAME..."
+              if printf "%s" "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME --data-file=- --replication-policy="automatic"; then
+                return 0
+              fi
+            else
+              echo "Updating secret $SECRET_NAME..."
+              if printf "%s" "$SECRET_VALUE" | gcloud secrets versions add $SECRET_NAME --data-file=-; then
+                return 0
+              fi
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+              echo "Retrying in 10 seconds... (Attempt $RETRY_COUNT of $MAX_RETRIES)"
+              sleep 10
+            fi
+          done
+          
+          echo "Failed to create/update secret $SECRET_NAME after $MAX_RETRIES attempts"
+          return 1
         }
         
         # Create/update all secrets
-        create_secret "youtube-api-key" "${{ secrets.YOUTUBE_API_KEY }}"
-        create_secret "jwt-secret" "${{ secrets.JWT_SECRET }}"
-        create_secret "db-host" "${{ secrets.DB_HOST }}"
-        create_secret "db-port" "${{ secrets.DB_PORT }}"
-        create_secret "db-name" "${{ secrets.DB_NAME }}"
-        create_secret "db-user" "${{ secrets.DB_USER }}"
-        create_secret "db-password" "${{ secrets.DB_PASSWORD }}"
+        echo "Setting up secrets..."
+        create_secret "youtube-api-key" "${{ secrets.YOUTUBE_API_KEY }}" || exit 1
+        create_secret "jwt-secret" "${{ secrets.JWT_SECRET }}" || exit 1
+        create_secret "db-host" "${{ secrets.DB_HOST }}" || exit 1
+        create_secret "db-port" "${{ secrets.DB_PORT }}" || exit 1
+        create_secret "db-name" "${{ secrets.DB_NAME }}" || exit 1
+        create_secret "db-user" "${{ secrets.DB_USER }}" || exit 1
+        create_secret "db-password" "${{ secrets.DB_PASSWORD }}" || exit 1
+        
+        echo "All secrets created/updated successfully"
 
     - name: Deploy to Cloud Run
       run: |
