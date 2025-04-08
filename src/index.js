@@ -29,9 +29,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/analysis', videoAnalysisRoutes);
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+// Enhanced health check endpoint
+app.get('/health', async (req, res) => {
+    try {
+        // Test database connection
+        await sequelize.authenticate();
+        res.json({ 
+            status: 'ok',
+            database: 'connected',
+            environment: process.env.NODE_ENV
+        });
+    } catch (error) {
+        console.error('Health check failed:', error);
+        res.status(500).json({ 
+            status: 'error',
+            database: 'disconnected',
+            error: error.message
+        });
+    }
 });
 
 // Error handling middleware
