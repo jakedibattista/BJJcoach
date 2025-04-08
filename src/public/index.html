@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BJJ Match Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .score-card {
+            transition: all 0.3s ease;
+        }
+        .score-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🥋 BJJ Match Analyzer</h1>
+            <p class="text-gray-600">Analyze and score Brazilian Jiu-Jitsu matches with AI assistance</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Video Analysis Section -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Video Analysis</h2>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="video-url">
+                            YouTube Video URL
+                        </label>
+                        <div class="flex">
+                            <input type="text" id="video-url" 
+                                class="flex-1 rounded-l-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter YouTube video URL">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600">
+                                Analyze
+                            </button>
+                        </div>
+                    </div>
+                    <div class="video-container rounded-lg overflow-hidden">
+                        <iframe id="youtube-player" 
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Analysis Controls -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Analysis Controls</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600">
+                            <i class="fas fa-play mr-2"></i> Start Analysis
+                        </button>
+                        <button class="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600">
+                            <i class="fas fa-stop mr-2"></i> Stop Analysis
+                        </button>
+                        <button class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600">
+                            <i class="fas fa-sync mr-2"></i> Reset
+                        </button>
+                        <button class="bg-purple-500 text-white p-3 rounded-lg hover:bg-purple-600">
+                            <i class="fas fa-download mr-2"></i> Export Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Dashboard -->
+            <div class="space-y-6">
+                <!-- Match Score -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Match Score</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="score-card bg-blue-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-blue-800">Fighter 1</h3>
+                            <p class="text-3xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="score-card bg-red-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-red-800">Fighter 2</h3>
+                            <p class="text-3xl font-bold text-red-600">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technique Recognition -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Technique Recognition</h2>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">Guard Pass</span>
+                            <span class="text-green-500 font-semibold">Detected</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">Submission Attempt</span>
+                            <span class="text-yellow-500 font-semibold">Analyzing</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">Sweep</span>
+                            <span class="text-gray-500 font-semibold">Not Detected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Timeline -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Match Timeline</h2>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-sm text-gray-600">0:45 - Guard Pass Attempt</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            <span class="text-sm text-gray-600">1:30 - Submission Attempt</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <span class="text-sm text-gray-600">2:15 - Takedown</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add your JavaScript here
+        document.getElementById('video-url').addEventListener('change', function(e) {
+            const videoId = extractVideoId(e.target.value);
+            if (videoId) {
+                document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}`;
+            }
+        });
+
+        function extractVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+    </script>
+</body>
+</html> 
