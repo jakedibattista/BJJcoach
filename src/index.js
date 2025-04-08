@@ -26,13 +26,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Simple health check that doesn't depend on database
+// Health check endpoint
 app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'ok',
-        database: dbConnected ? 'connected' : 'attempting connection',
-        environment: process.env.NODE_ENV
-    });
+    res.status(200).json({ status: 'healthy' });
 });
 
 // Routes with database dependency
@@ -52,15 +48,15 @@ app.use('/api/analysis', requireDbConnection, videoAnalysisRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
+    res.status(500).json({ error: 'Something broke!' });
 });
 
 // Start server first, then try to connect to database
 const PORT = process.env.PORT || 8080;
 
 // Start the server immediately to pass the health check
-const server = app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running at http://0.0.0.0:${PORT}`);
 });
 
 // Then try to connect to the database in the background

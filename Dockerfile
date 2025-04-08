@@ -1,8 +1,11 @@
 # Use Node.js LTS version
-FROM node:18-slim
+FROM node:20-slim
 
 # Create app directory
 WORKDIR /workspace
+
+# Update npm to latest version
+RUN npm install -g npm@latest
 
 # Copy package files
 COPY package*.json ./
