@@ -48,10 +48,13 @@ jobs:
 
     - name: Build and push container image
       run: |
-        gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
 
     - name: Copy files to Cloud Storage
       run: |
+        mkdir -p public
+        cp -r src/public/* public/
         gcloud storage cp -r public/* gs://${{ env.BUCKET_NAME }}/
 
     - name: Deploy to Cloud Run
