@@ -14,6 +14,7 @@ spec:
       annotations:
         run.googleapis.com/startup-cpu-boost: 'true'
     spec:
+      serviceAccountName: 781030252850-compute@developer.gserviceaccount.com
       containers:
       - image: gcr.io/bjjcoach-454315/bjj-coach
         args:
