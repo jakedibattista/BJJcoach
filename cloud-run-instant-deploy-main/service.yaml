@@ -34,38 +34,38 @@ spec:
         - name: YOUTUBE_API_KEY
           valueFrom:
             secretKeyRef:
-              name: bjj-coach-secrets
-              key: youtube-api-key
+              name: youtube-api-key
+              key: latest
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: bjj-coach-secrets
-              key: jwt-secret
+              name: jwt-secret
+              key: latest
         - name: DB_HOST
           valueFrom:
             secretKeyRef:
-              name: bjj-coach-secrets
-              key: db-host
+              name: db-host
+              key: latest
         - name: DB_PORT
           valueFrom:
             secretKeyRef:
-              name: bjj-coach-secrets
-              key: db-port
+              name: db-port
+              key: latest
         - name: DB_NAME
           valueFrom:
             secretKeyRef:
-              name: bjj-coach-secrets
-              key: db-name
+              name: db-name
+              key: latest
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: bjj-coach-secrets
-              key: db-user
+              name: db-user
+              key: latest
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: bjj-coach-secrets
-              key: db-password
+              name: db-password
+              key: latest
         ports:
         - containerPort: 8080
         resources:
