@@ -20,30 +20,32 @@ jobs:
       id-token: 'write'
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    - id: 'auth'
-      name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v2'
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
       with:
         workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
         service_account: ${{ secrets.GCP_SA_EMAIL }}
-        token_format: 'access_token'
-        audience: 'sts.googleapis.com'
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
 
-    - name: 'Configure gcloud'
+    - name: Configure gcloud CLI
       run: |
-        gcloud config set project $PROJECT_ID
-        gcloud config set run/region $REGION
+        gcloud config set project ${{ env.PROJECT_ID }}
+        gcloud config set run/region ${{ env.REGION }}
 
-    - name: 'Copy files to Cloud Storage'
+    - name: Build and push container image
       run: |
-        gcloud storage cp -r . gs://$BUCKET_NAME/
+        gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
 
-    - name: 'Deploy to Cloud Run'
+    - name: Copy files to Cloud Storage
+      run: |
+        gcloud storage cp -r public/* gs://${{ env.BUCKET_NAME }}/
+
+    - name: Deploy to Cloud Run
       run: |
         gcloud run services replace cloud-run-instant-deploy-main/service.yaml \
           --region=${{ env.REGION }} \
@@ -55,6 +57,7 @@ jobs:
 
     - name: 'Make Cloud Run service public'
       run: |
-        gcloud run services add-iam-policy-binding $SERVICE_NAME \
+        gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
+          --region=${{ env.REGION }} \
           --member="allUsers" \
           --role="roles/run.invoker" 
