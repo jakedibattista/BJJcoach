@@ -3,12 +3,13 @@ name: Deploy to Cloud Run
 # Trigger new run after secrets update
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
     branches: [ main ]
 
 env:
-  PROJECT_ID: "781030252850"
+  PROJECT_ID: bjjcoach-454315
   REGION: us-central1
   SERVICE_NAME: bjj-coach
   BUCKET_NAME: bjjcoach-files
@@ -46,10 +47,10 @@ jobs:
       run: |
         gcloud auth configure-docker gcr.io --quiet
 
-    - name: Build and push container image
-      run: |
-        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }} .
-        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
+    - name: Build and Push Container
+      run: |-
+        docker build -t gcr.io/bjjcoach-454315/bjj-coach .
+        docker push gcr.io/bjjcoach-454315/bjj-coach
 
     - name: Copy files to Cloud Storage
       run: |
