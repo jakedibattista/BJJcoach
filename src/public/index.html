@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJJ Match Analyzer</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>BJJ Coach - Match Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .video-container {
             position: relative;
@@ -56,13 +56,8 @@
                             </button>
                         </div>
                     </div>
-                    <div class="video-container rounded-lg overflow-hidden">
-                        <iframe id="youtube-player" 
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
+                    <div id="video-container" class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-200">
+                        <p class="text-center text-gray-600 mt-20">Enter a YouTube URL to begin analysis</p>
                     </div>
                 </div>
 
@@ -144,20 +139,6 @@
         </div>
     </div>
 
-    <script>
-        // Add your JavaScript here
-        document.getElementById('video-url').addEventListener('change', function(e) {
-            const videoId = extractVideoId(e.target.value);
-            if (videoId) {
-                document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${videoId}`;
-            }
-        });
-
-        function extractVideoId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-    </script>
+    <script src="/js/app.js"></script>
 </body>
 </html> 

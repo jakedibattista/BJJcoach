@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: "781030252850"
   REGION: us-central1
   SERVICE_NAME: bjj-coach
   BUCKET_NAME: bjjcoach-files
