@@ -49,24 +49,40 @@ jobs:
 
     - name: Build and Push Container
       run: |-
-        docker build -t gcr.io/bjjcoach-454315/bjj-coach .
-        docker push gcr.io/bjjcoach-454315/bjj-coach
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
+
+    - name: Create or Update Cloud Run Secrets
+      run: |
+        # Function to create/update secret
+        create_secret() {
+          local SECRET_NAME=$1
+          local SECRET_VALUE=$2
+          
+          # Check if secret exists
+          if ! gcloud secrets describe $SECRET_NAME 2>/dev/null; then
+            printf "%s" "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME --data-file=-
+          else
+            printf "%s" "$SECRET_VALUE" | gcloud secrets versions add $SECRET_NAME --data-file=-
+          fi
+        }
+        
+        # Create/update all secrets
+        create_secret "youtube-api-key" "${{ secrets.YOUTUBE_API_KEY }}"
+        create_secret "jwt-secret" "${{ secrets.JWT_SECRET }}"
+        create_secret "db-host" "${{ secrets.DB_HOST }}"
+        create_secret "db-port" "${{ secrets.DB_PORT }}"
+        create_secret "db-name" "${{ secrets.DB_NAME }}"
+        create_secret "db-user" "${{ secrets.DB_USER }}"
+        create_secret "db-password" "${{ secrets.DB_PASSWORD }}"
 
     - name: Deploy to Cloud Run
-      env:
-        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_PORT: ${{ secrets.DB_PORT }}
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
         gcloud run services replace cloud-run-instant-deploy-main/service.yaml \
           --region=${{ env.REGION }} \
           --project=${{ env.PROJECT_ID }}
 
-    - name: 'Make Cloud Run service public'
+    - name: Make Cloud Run service public
       run: |
         gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
           --region=${{ env.REGION }} \

@@ -23,19 +23,40 @@ spec:
         - name: NODE_ENV
           value: "production"
         - name: YOUTUBE_API_KEY
-          value: $(YOUTUBE_API_KEY)
+          valueFrom:
+            secretKeyRef:
+              name: youtube-api-key
+              key: latest
         - name: JWT_SECRET
-          value: $(JWT_SECRET)
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: latest
         - name: DB_HOST
-          value: $(DB_HOST)
+          valueFrom:
+            secretKeyRef:
+              name: db-host
+              key: latest
         - name: DB_PORT
-          value: $(DB_PORT)
+          valueFrom:
+            secretKeyRef:
+              name: db-port
+              key: latest
         - name: DB_NAME
-          value: $(DB_NAME)
+          valueFrom:
+            secretKeyRef:
+              name: db-name
+              key: latest
         - name: DB_USER
-          value: $(DB_USER)
+          valueFrom:
+            secretKeyRef:
+              name: db-user
+              key: latest
         - name: DB_PASSWORD
-          value: $(DB_PASSWORD)
+          valueFrom:
+            secretKeyRef:
+              name: db-password
+              key: latest
         ports:
         - containerPort: 8080
         resources:
@@ -49,16 +70,16 @@ spec:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 0
-          timeoutSeconds: 1
-          periodSeconds: 3
-          failureThreshold: 1
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 5
+          failureThreshold: 3
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 0
-          timeoutSeconds: 1
-          periodSeconds: 3
-          failureThreshold: 1
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 30
+          failureThreshold: 3
 
