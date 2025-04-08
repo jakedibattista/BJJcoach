@@ -1,6 +1,6 @@
 name: Deploy to Cloud Run
 
-# Force new workflow run with simplified auth
+# Trigger new run after secrets update
 on:
   push:
     branches: [ main ]
@@ -29,6 +29,7 @@ jobs:
       with:
         workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
         service_account: ${{ secrets.GCP_SA_EMAIL }}
+        audience: sts.googleapis.com
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
