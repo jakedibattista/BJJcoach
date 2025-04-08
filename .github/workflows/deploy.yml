@@ -52,21 +52,19 @@ jobs:
         docker build -t gcr.io/bjjcoach-454315/bjj-coach .
         docker push gcr.io/bjjcoach-454315/bjj-coach
 
-    - name: Copy files to Cloud Storage
-      run: |
-        mkdir -p public
-        cp -r src/public/* public/
-        gcloud storage cp -r public/* gs://${{ env.BUCKET_NAME }}/
-
     - name: Deploy to Cloud Run
+      env:
+        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
         gcloud run services replace cloud-run-instant-deploy-main/service.yaml \
           --region=${{ env.REGION }} \
           --project=${{ env.PROJECT_ID }}
-        gcloud run services update ${{ env.SERVICE_NAME }} \
-          --region=${{ env.REGION }} \
-          --project=${{ env.PROJECT_ID }} \
-          --set-env-vars="YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }},JWT_SECRET=${{ secrets.JWT_SECRET }},DB_HOST=${{ secrets.DB_HOST }},DB_PORT=${{ secrets.DB_PORT }},DB_NAME=${{ secrets.DB_NAME }},DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
 
     - name: 'Make Cloud Run service public'
       run: |
