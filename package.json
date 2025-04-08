@@ -12,6 +12,7 @@
   "dependencies": {
     "@google-cloud/aiplatform": "^3.5.0",
     "@google-cloud/storage": "^7.0.0",
+    "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
     "canvas": "^2.11.2",
     "cors": "^2.8.5",
