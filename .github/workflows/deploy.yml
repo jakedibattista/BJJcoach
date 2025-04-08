@@ -28,11 +28,6 @@ jobs:
       with:
         workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
         service_account: ${{ secrets.GCP_SA_EMAIL }}
-        token_format: 'access_token'
-        create_credentials_file: true
-        export_environment_variables: true
-        access_token_lifetime: 3600s
-        access_token_scopes: https://www.googleapis.com/auth/cloud-platform
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
