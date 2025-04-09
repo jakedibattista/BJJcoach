@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { createCanvas } = require('canvas');
 require('dotenv').config({ path: '.env.test' });
 
 // Mock Vertex AI prediction results
@@ -49,14 +48,10 @@ describe('VideoAnalysisService', () => {
             testFile = path.join(testDir, 'test.txt');
             fs.writeFileSync(testFile, 'test content');
 
-            // Create test frame
+            // Create test frame using a simple base64 encoded PNG
             testFrame = path.join(testDir, 'test-frame.png');
-            const canvas = createCanvas(640, 480);
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, 640, 480);
-            const buffer = canvas.toBuffer('image/png');
-            fs.writeFileSync(testFrame, buffer);
+            const base64Image = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+            fs.writeFileSync(testFrame, Buffer.from(base64Image, 'base64'));
 
             await videoAnalysisService.initialize();
         } catch (error) {

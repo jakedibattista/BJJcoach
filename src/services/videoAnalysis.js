@@ -1,6 +1,5 @@
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegStatic = require('ffmpeg-static');
-const { createCanvas, loadImage } = require('canvas');
 const { PredictionServiceClient } = require('@google-cloud/aiplatform');
 const { Storage } = require('@google-cloud/storage');
 const { google } = require('googleapis');
