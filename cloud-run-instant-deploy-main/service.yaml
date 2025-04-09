@@ -26,8 +26,6 @@ spec:
         env:
         - name: NODE_ENV
           value: "production"
-        - name: PORT
-          value: "8080"
         - name: YOUTUBE_API_KEY
           valueFrom:
             secretKeyRef:
@@ -66,29 +64,28 @@ spec:
         resources:
           limits:
             cpu: 1000m
-            memory: 512Mi
+            memory: 768Mi
         startupProbe:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 3
-          timeoutSeconds: 1
-          failureThreshold: 3
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 5
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 1
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 2
           failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 3
-          timeoutSeconds: 1
+          periodSeconds: 5
+          timeoutSeconds: 2
           failureThreshold: 3
 
