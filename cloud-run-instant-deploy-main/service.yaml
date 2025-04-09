@@ -16,10 +16,9 @@ spec:
     spec:
       serviceAccountName: 781030252850-compute@developer.gserviceaccount.com
       containers:
-      - image: gcr.io/bjjcoach-454315/bjj-coach
-        args:
-        - node
-        - src/index.js
+      - image: gcr.io/781030252850/bjj-coach
+        ports:
+        - containerPort: 8080
         env:
         - name: NODE_ENV
           value: "production"
@@ -58,22 +57,17 @@ spec:
             secretKeyRef:
               name: db-password
               key: latest
-        ports:
-        - containerPort: 8080
         resources:
           limits:
             cpu: "1"
             memory: "512Mi"
-          requests:
-            cpu: "500m"
-            memory: "256Mi"
         startupProbe:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 5
-          timeoutSeconds: 3
-          periodSeconds: 5
+          initialDelaySeconds: 0
+          timeoutSeconds: 1
+          periodSeconds: 3
           failureThreshold: 3
         livenessProbe:
           httpGet:
