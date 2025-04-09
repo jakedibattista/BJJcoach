@@ -16,7 +16,7 @@ spec:
     spec:
       serviceAccountName: 781030252850-compute@developer.gserviceaccount.com
       containers:
-      - image: gcr.io/781030252850/bjj-coach
+      - image: gcr.io/bjjcoach-454315/bjj-coach
         ports:
         - containerPort: 8080
         env:
