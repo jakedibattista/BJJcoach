@@ -77,4 +77,6 @@ const connectToDB = async () => {
 // Start the database connection process
 connectToDB();
 
+// Test deployment - checking Cloud Run deployment process
+
 module.exports = app; 
