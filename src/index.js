@@ -77,6 +77,6 @@ const connectToDB = async () => {
 // Start the database connection process
 connectToDB();
 
-// Test deployment with fixed service.yaml configuration
+// Test deployment with updated secrets configuration
 
 module.exports = app; 
